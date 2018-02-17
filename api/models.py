@@ -12,6 +12,10 @@ class Group(models.Model):
     '''
     e.g.: Some Practice, or "Referrers"
     '''
+
+    def __str__(self):
+        return self.name
+
     owners = ArrayField(models.CharField(max_length=36), default=[])
     members = ArrayField(models.CharField(max_length=36), default=[])
 

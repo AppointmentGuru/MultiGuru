@@ -64,18 +64,16 @@ class ProxyViewSet(viewsets.ViewSet):
         group, resource, api_config = self.__get_config(request, 'appointmentguru.co')
 
         results = {}
-        # make this async:
-        ioloop = asyncio.get_event_loop()
-
-        results = {}
+        downstream_params = {key.replace('param.',''): val for (key, val) in request.GET.items() if key.startswith('param.')}
         for user_id in group.members:
             headers = get_headers(user_id)
             base = api_config.get('base_url')
             path = api_config.get(resource).format(user_id)
             url = '{}{}'.format(base, path)
 
-            result = requests.get(url, headers=headers)
+            result = requests.get(url, headers=headers, params=downstream_params)
             results[user_id] = result.json()
+        # ioloop = asyncio.get_event_loop()
         # for user_id in group.members:
         #     headers = get_headers(user_id)
         #     url = request_data.get('upstream').format(user_id)
