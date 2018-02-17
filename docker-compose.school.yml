@@ -1,10 +1,11 @@
 version: "3"
 services:
   school:
-    image: appointmentguru/school:latest
+    image: appointmentguru/infrastructure:latest
     volumes:
       - ~/.ssh:/root/.ssh # map ssh keys
-    command: ansible-playbook /code/ansible/deploy.drf.yml  -i /etc/ansible/inventory/digital_ocean.py -e "organization=appointmentguru service=multiguru entity_name=multi"
+      - ./production.environment.yml:/code/ansible/group_vars/server_swarm.yml
+    command: ansible-playbook /code/ansible/deploy.drf.yml  -i /etc/ansible/inventory/digital_ocean.py -e "organization=appointmentguru service=multiguru entity_name=multi" --skip-tags=kong
     environment:
       - ANSIBLE_HOST_KEY_CHECKING=False
       - ANSIBLE_LIBRARY=/etc/ansible/library

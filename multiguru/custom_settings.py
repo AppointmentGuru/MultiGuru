@@ -41,7 +41,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 
-APPOINTMENTGURU_URL = 'https://api.appointmentguru.co'
+APPOINTMENTGURU_URL = 'https://appointmentguru'
 
 PROXIED_APIS = {
     'appointmentguru.co': {
