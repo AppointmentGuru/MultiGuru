@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
-from rest_framework import routers, serializers, viewsets, response
+from rest_framework import routers, serializers, viewsets, response, decorators, filters
 
 from .models import Group, Permission
+from .filters import IsOwnerFilterBackend
 from multiguru.guru import get_headers
 
 import requests, asyncio
@@ -23,6 +24,29 @@ class PermissionSerializer(serializers.ModelSerializer):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+    filter_backends = (
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        IsOwnerFilterBackend)
+
+    @decorators.detail_route(methods=['get'])
+    def expand(self, request, pk=None):
+        '''Fetch profile for each member of the group'''
+        group = self.get_object()
+        group_data = GroupSerializer(group).data
+
+        member_data = []
+        for member_id in group.members:
+            config = settings.PROXIED_APIS.get(settings.APPOINTMENTGURU_NAME)
+            path = config.get('profile').format(member_id)
+            url = '{}{}'.format(config.get('base_url'), path)
+            headers = get_headers(request.user.id)
+            result = requests.get(url, headers=headers)
+            member_data.append(result.json())
+        group_data.update({'data': member_data})
+        return JsonResponse(group_data)
+
 
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
@@ -63,7 +87,7 @@ class ProxyViewSet(viewsets.ViewSet):
         or
         /some-practice/appointmets/?date=..
         '''
-        group, resource, api_config, downstream_params = self.__get_config(request, 'appointmentguru.co')
+        group, resource, api_config, downstream_params = self.__get_config(request, settings.APPOINTMENTGURU_NAME)
         results = {}
         for user_id in group.members:
             headers = get_headers(user_id)

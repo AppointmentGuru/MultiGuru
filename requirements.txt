@@ -9,6 +9,7 @@ kong_oauth==0.1
 
 requests
 responses
+faker
 
 ipdb
 ipython

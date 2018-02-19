@@ -3,10 +3,13 @@ from __future__ import unicode_literals
 
 from django.urls import reverse
 from django.test import TestCase
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
-from .testutils import (create_fake_user,
-                        create_fake_group)
+from .testutils import (add_response,
+                        create_fake_user,
+                        create_fake_group,
+                        create_fake_group_and_members)
 
 import requests, responses
 
@@ -14,6 +17,22 @@ class AuthTestCase(TestCase):
 
     def test_auths_user(self):
         pass
+
+class GroupTestCase(TestCase):
+
+    def setUp(self):
+        self.group, self.owner = create_fake_group_and_members('test group')
+        self.url = reverse('group-expand', args=(self.group.id,))
+
+    @responses.activate
+    def test_get_expanded_group(self):
+        self.client.login(username=self.owner.username, password='testtest')
+        for member in self.group.members:
+            path = '/api/client/practitioners/{}/'.format(member)
+            add_response(path=path, response_data={"id": member})
+        res = self.client.get(self.url)
+        assert res.status_code == 200
+        assert res.json().get('data') is not None
 
 class ProxyTestCase(TestCase):
 
@@ -68,7 +87,7 @@ class ProxyTestCase(TestCase):
         self.client.login(username=self.group_member.username, password='testtest')
 
         res = self.client.get(self.url, params)
-        import ipdb;ipdb.set_trace()
+        assert res.status_code == 200
 
     @responses.activate
     def test_404_if_not_member(self):
