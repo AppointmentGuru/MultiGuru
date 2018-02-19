@@ -17,10 +17,11 @@ class AuthTestCase(TestCase):
 
 class ProxyTestCase(TestCase):
 
-    def __add_response(self, response_data={}, status=200):
+    def __add_response(self, path='/api/clients/', response_data={}, status=200):
+        url = 'http://appointmentguru{}'.format(path)
         responses.add(
             responses.GET,
-            'https://appointmentguru/api/client/practitioners/',
+            url,
             json=response_data,
             status=status)
 
@@ -31,16 +32,16 @@ class ProxyTestCase(TestCase):
         self.group_member = create_fake_user('jill')
         self.non_member = create_fake_user('jane')
 
-        members = [self.group_owner.id, self.group_member.id]
+        self.member_ids = [self.group_owner.id, self.group_member.id]
 
         self.group = create_fake_group(
                         name='test group',
                         owners=[self.group_owner.id],
-                        members=members)
+                        members=self.member_ids)
 
         self.base_params = {
             "group": self.group.id,
-            "resource": 'profile'
+            "resource": 'client'
         }
 
     @responses.activate
@@ -53,11 +54,21 @@ class ProxyTestCase(TestCase):
     @responses.activate
     def test_gets_all_params_passed(self):
         self.__add_response()
-        self.client.login(username=self.group_member.username, password='testtest')
         params = self.base_params
 
         self.client.login(username=self.group_member.username, password='testtest')
         res = self.client.get(self.url, params)
+
+    @responses.activate
+    def test_it_works_with_urls_with_ids(self):
+        for id in self.member_ids:
+            self.__add_response(path='/api/client/practitioners/{}/'.format(id))
+        params = self.base_params
+        params['resource'] = 'profile'
+        self.client.login(username=self.group_member.username, password='testtest')
+
+        res = self.client.get(self.url, params)
+        import ipdb;ipdb.set_trace()
 
     @responses.activate
     def test_404_if_not_member(self):

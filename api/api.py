@@ -51,7 +51,9 @@ class ProxyViewSet(viewsets.ViewSet):
         not_a_member_of_thisgroup = str(request.user.id) in group.members
         if not not_a_member_of_thisgroup: raise Http404
 
-        return (group, resource, api_config)
+        downstream_params = {key.replace('param.',''): val for (key, val) in request.GET.items() if key.startswith('param.')}
+
+        return (group, resource, api_config, downstream_params)
 
     def list(self, request):
         '''
@@ -61,10 +63,8 @@ class ProxyViewSet(viewsets.ViewSet):
         or
         /some-practice/appointmets/?date=..
         '''
-        group, resource, api_config = self.__get_config(request, 'appointmentguru.co')
-
+        group, resource, api_config, downstream_params = self.__get_config(request, 'appointmentguru.co')
         results = {}
-        downstream_params = {key.replace('param.',''): val for (key, val) in request.GET.items() if key.startswith('param.')}
         for user_id in group.members:
             headers = get_headers(user_id)
             base = api_config.get('base_url')
