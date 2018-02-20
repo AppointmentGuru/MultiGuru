@@ -30,22 +30,26 @@ class GroupViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
         IsOwnerFilterBackend)
 
-    @decorators.detail_route(methods=['get'])
-    def expand(self, request, pk=None):
+    @decorators.list_route(methods=['get'])
+    def expand(self, request):
         '''Fetch profile for each member of the group'''
-        group = self.get_object()
-        group_data = GroupSerializer(group).data
+        groups = self.get_queryset()
+        response = []
+        for group in groups:
+            group_data = GroupSerializer(group).data
 
-        member_data = []
-        for member_id in group.members:
-            config = settings.PROXIED_APIS.get(settings.APPOINTMENTGURU_NAME)
-            path = config.get('profile').format(member_id)
-            url = '{}{}'.format(config.get('base_url'), path)
-            headers = get_headers(request.user.id)
-            result = requests.get(url, headers=headers)
-            member_data.append(result.json())
-        group_data.update({'data': member_data})
-        return JsonResponse(group_data)
+            member_data = []
+            for member_id in group.members:
+                config = settings.PROXIED_APIS.get(settings.APPOINTMENTGURU_NAME)
+                path = config.get('profile').format(member_id)
+                url = '{}{}'.format(config.get('base_url'), path)
+                headers = get_headers(request.user.id)
+                result = requests.get(url, headers=headers)
+                member_data.append(result.json())
+            group_data.update({'data': member_data})
+            response.append(group_data)
+
+        return JsonResponse(response, safe=False)
 
 
 class PermissionViewSet(viewsets.ModelViewSet):

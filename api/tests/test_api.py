@@ -10,7 +10,7 @@ from .testutils import (add_response,
                         create_fake_user,
                         create_fake_group,
                         create_fake_group_and_members)
-
+from ..models import Group
 import requests, responses
 
 class AuthTestCase(TestCase):
@@ -22,7 +22,7 @@ class GroupTestCase(TestCase):
 
     def setUp(self):
         self.group, self.owner = create_fake_group_and_members('test group')
-        self.url = reverse('group-expand', args=(self.group.id,))
+        self.url = reverse('group-expand')
 
     @responses.activate
     def test_get_expanded_group(self):
@@ -32,7 +32,8 @@ class GroupTestCase(TestCase):
             add_response(path=path, response_data={"id": member})
         res = self.client.get(self.url)
         assert res.status_code == 200
-        assert res.json().get('data') is not None
+        assert len(res.json()) == Group.objects.count()
+        assert res.json()[0].get('data') is not None
 
 class ProxyTestCase(TestCase):
 
