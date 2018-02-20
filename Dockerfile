@@ -1,3 +1,4 @@
+LABEL maintainer="tech@appointmentguru.co"
 FROM python:3.6
 ENV PYTHONUNBUFFERED 1
 RUN mkdir -p /code
