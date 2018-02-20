@@ -8,7 +8,7 @@ from .models import Group, Permission
 from .filters import IsOwnerFilterBackend
 from multiguru.guru import get_headers
 
-import requests, asyncio
+import requests
 
 
 class GroupSerializer(serializers.ModelSerializer):
