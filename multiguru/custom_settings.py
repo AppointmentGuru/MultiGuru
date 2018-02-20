@@ -47,7 +47,7 @@ PROXIED_APIS = {
     APPOINTMENTGURU_NAME: {
         'base_url': APPOINTMENTGURU_URL,
         'appointment': '/api/appointments/',
-        'client': '/api/clients/',
+        'client': '/api/v2/practitioner/clients/',
         'profile': '/api/client/practitioners/{}/',
     }
 }
