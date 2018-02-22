@@ -23,6 +23,7 @@ class GroupTestCase(TestCase):
     def setUp(self):
         self.group, self.owner = create_fake_group_and_members('test group')
         self.url = reverse('group-expand')
+        create_fake_group('group-2')
 
     @responses.activate
     def test_get_expanded_group(self):
@@ -32,12 +33,12 @@ class GroupTestCase(TestCase):
             add_response(path=path, response_data={"id": member})
         res = self.client.get(self.url)
         assert res.status_code == 200
-        assert len(res.json()) == Group.objects.count()
+        assert len(res.json()) == 1
         assert res.json()[0].get('data') is not None
 
 class ProxyTestCase(TestCase):
 
-    def __add_response(self, path='/api/clients/', response_data={}, status=200):
+    def __add_response(self, path='/api/v2/practitioner/clients/', response_data={}, status=200):
         url = 'http://appointmentguru{}'.format(path)
         responses.add(
             responses.GET,

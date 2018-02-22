@@ -33,7 +33,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     @decorators.list_route(methods=['get'])
     def expand(self, request):
         '''Fetch profile for each member of the group'''
-        groups = self.get_queryset()
+        groups = Group.objects.filter(members__contains = [request.user.id])
         response = []
         for group in groups:
             group_data = GroupSerializer(group).data
