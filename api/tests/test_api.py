@@ -97,3 +97,47 @@ class ProxyTestCase(TestCase):
         self.client.login(username=self.non_member.username, password='testtest')
         res = self.client.get(self.url, self.base_params)
         assert res.status_code == 404
+
+class ProxyPOSTTestCase(TestCase):
+
+    def setUp(self):
+        self.url = reverse('proxy-list')
+        self.group_owner = create_fake_user('jack')
+        self.group_member = create_fake_user('jill')
+        self.non_member = create_fake_user('jane')
+
+        self.member_ids = [self.group_owner.id, self.group_member.id]
+
+        self.group = create_fake_group(
+                        name='test group',
+                        owners=[self.group_owner.id],
+                        members=self.member_ids)
+
+        self.url = '{}?group={}&resource={}'.format(
+                        self.url,
+                        self.group.id,
+                        'appointment')
+
+    @responses.activate
+    def test_is_upstreams_a_post_request(self):
+        payload = {
+            "practitioner": 1,
+            "create_process": False,
+            "start_time": "2018-02-26 10:45",
+            "end_time": "2018-02-26 11:15",
+            "product": 16,
+            "title": "Christo Crampton",
+            "client": 1,
+            "source": "dev.tests"
+        }
+        add_response('/api/appointments/', method='POST', status=201)
+        self.client.login(username=self.group_member.username, password='testtest')
+        res = self.client.post(self.url, payload)
+
+    def test_upstream_payload(self):
+        payload = {
+            "practitioner": 1,
+            "appointment": 13427,
+            "name": "schedule.models.AppointmentProcess.cancel",
+            "request_data": "{\"notifications\":false}"
+        }

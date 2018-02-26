@@ -7,11 +7,12 @@ import responses
 
 FAKE = Factory.create()
 
-def add_response(path='/api/clients/', response_data={}, status=200):
+def add_response(path='/api/clients/', response_data={}, method='GET', status=200):
+
 
     url = '{}{}'.format(settings.APPOINTMENTGURU_URL, path)
     responses.add(
-        responses.GET,
+        getattr(responses, method.upper(), 'GET'),
         url,
         json=response_data,
         status=status)

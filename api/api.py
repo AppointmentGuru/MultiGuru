@@ -76,8 +76,8 @@ class ProxyViewSet(viewsets.ViewSet):
         group = get_object_or_404(Group, id=group_id)
         api_config = settings.PROXIED_APIS.get(api)
 
-        not_a_member_of_thisgroup = str(request.user.id) in group.members
-        if not not_a_member_of_thisgroup: raise Http404
+        not_a_member_of_this_group = str(request.user.id) in group.members
+        if not not_a_member_of_this_group: raise Http404
 
         downstream_params = {key.replace('param.',''): val for (key, val) in request.GET.items() if key.startswith('param.')}
 
@@ -116,6 +116,26 @@ class ProxyViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk):
         pass
+
+    def create(self, request):
+        '''
+        Proxy POST requests
+        /proxy/?group=..&resource=..
+        --data={
+            ...
+        }
+
+        => /upstream --data = data.data
+        '''
+        group_id = request.GET.get('group')
+        resource = request.GET.get('resource')
+        practitioner_id = request.data.get('practitioner')
+
+        api_config = settings.PROXIED_APIS.get(settings.APPOINTMENTGURU_NAME)
+        url = '{}{}'.format(api_config.get('base_url'), api_config.get(resource))
+        data = request.data
+        result = requests.post(url, data, headers=get_headers(practitioner_id))
+        return response.Response(result.json())
 
 
 # Routers provide an easy way of automatically determining the URL conf.
