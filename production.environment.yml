@@ -25,5 +25,3 @@ docker_environment:
     value: "{{kong_client_secret}}"
   - key: KONG_OAUTH_BASE_URL
     value: "{{kong_oauth_base_url}}"
-  - key: KONG_PROVISION_KEY
-    value: "{{kong_provision_key}}"
