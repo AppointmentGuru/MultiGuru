@@ -9,7 +9,7 @@ def can_become(user, sudo, required_permission=None, group=None):
 
     groups = Group.objects.filter(members__contains=[sudo])
     for group in groups:
-        if user in group.members:
+        if user in group.members or str(user) in group.members:
             return True
     return False
 
