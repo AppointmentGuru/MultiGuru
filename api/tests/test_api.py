@@ -7,16 +7,13 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from .testutils import (add_response,
+                        get_proxy_headers,
                         create_fake_user,
                         create_fake_group,
                         create_fake_group_and_members)
 from ..models import Group
 import os, requests, responses
 
-class AuthTestCase(TestCase):
-
-    def test_auths_user(self):
-        pass
 
 class BecomeTestCase(TestCase):
 
@@ -33,12 +30,14 @@ class BecomeTestCase(TestCase):
             expected_url,
             json={}
         )
-
-        self.client.login(username=self.owner, password='testtest')
+        # self.client.login(username=self.owner, password='testtest')
         data = {
             'become_id': self.group1.members[0]
         }
-        self.client.post(self.url, data)
+        self.client.post(
+            self.url,
+            data,
+            **get_proxy_headers(self.owner.id))
         # verification is that the request to oauth is made
 
     @responses.activate

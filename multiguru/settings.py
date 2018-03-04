@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'storages',
     'rest_framework',
+    'django_filters',
     'kong_oauth',
 
     'api',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'kong_oauth.middleware.KongUserMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
