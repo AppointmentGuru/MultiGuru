@@ -17,3 +17,13 @@ docker_environment:
     value: "{{aws_access_key}}"
   - key: AWS_SECRET_ACCESS_KEY
     value: "{{aws_secret_key}}"
+  - key: KONG_PROVISION_KEY
+    value: "{{kong_provision_key}}"
+  - key: KONG_CLIENT_ID
+    value: "{{kong_client_id}}"
+  - key: KONG_CLIENT_SECRET
+    value: "{{kong_client_secret}}"
+  - key: KONG_OAUTH_BASE_URL
+    value: "{{kong_oauth_base_url}}"
+  - key: KONG_PROVISION_KEY
+    value: "{{kong_provision_key}}"

@@ -2,10 +2,20 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import Http404, JsonResponse
 
-from rest_framework import routers, serializers, viewsets, response, decorators, filters
+from rest_framework import (
+    routers,
+    serializers,
+    views,
+    viewsets,
+    response,
+    decorators,
+    filters,
+    status
+)
 
 from .models import Group, Permission
 from .filters import IsOwnerFilterBackend
+from .helpers import (can_become, kong_login)
 from multiguru.guru import get_headers
 
 import requests
@@ -51,10 +61,26 @@ class GroupViewSet(viewsets.ModelViewSet):
 
         return JsonResponse(response, safe=False)
 
-
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
+
+
+class BecomeViewSet(viewsets.ViewSet):
+
+    def create(self, request):
+        become_id = request.data.get('become_id', None)
+        logged_in_id = request.user.id
+
+        if can_become(become_id, logged_in_id):
+            # todo: unhardcode this:
+            response = kong_login(become_id)
+            return JsonResponse(response)
+        else:
+            response = { "errors": [ 'Authentication failed' ] }
+            return JsonResponse(response, status=status.HTTP_403_FORBIDDEN)
+
+
 
 class ProxyViewSet(viewsets.ViewSet):
     '''Simple class that proxys requests upstream according to the user's permissions'''
@@ -140,6 +166,7 @@ class ProxyViewSet(viewsets.ViewSet):
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
+router.register(r'become', BecomeViewSet, base_name='become')
 router.register(r'groups', GroupViewSet)
 router.register(r'permissions', PermissionViewSet)
 router.register(r'proxy', ProxyViewSet, base_name='proxy')

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.urls import reverse
-from django.test import TestCase
+from django.test import (TestCase, override_settings)
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -11,12 +11,45 @@ from .testutils import (add_response,
                         create_fake_group,
                         create_fake_group_and_members)
 from ..models import Group
-import requests, responses
+import os, requests, responses
 
 class AuthTestCase(TestCase):
 
     def test_auths_user(self):
         pass
+
+class BecomeTestCase(TestCase):
+
+    def setUp(self):
+        self.url = reverse('become-list')
+        self.group1, self.owner = create_fake_group_and_members('test group')
+        self.group2, owner2 = create_fake_group_and_members('test group 2')
+
+    @responses.activate
+    def test_can_become(self):
+        expected_url = '{}/oauth2/token/'.format(os.environ.get('KONG_OAUTH_BASE_URL'))
+        responses.add(
+            responses.POST,
+            expected_url,
+            json={}
+        )
+
+        self.client.login(username=self.owner, password='testtest')
+        data = {
+            'become_id': self.group1.members[0]
+        }
+        self.client.post(self.url, data)
+        # verification is that the request to oauth is made
+
+    @responses.activate
+    def test_cannot_become_without_permissions(self):
+        self.client.login(username=self.owner, password='testtest')
+        data = {
+            'become_id': self.group2.members[0]
+        }
+        res = self.client.post(self.url, data)
+        assert res.status_code == 403,\
+            'Expected status: {}. Got: {}'.format(403, res.status_code)
 
 class GroupTestCase(TestCase):
 
