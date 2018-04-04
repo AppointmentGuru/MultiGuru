@@ -34,4 +34,4 @@ def kong_login(user_id):
     }
     url = os.environ.get('KONG_OAUTH_ENDPOINT')
     print(url)
-    return requests.post(url, data).json()
+    return requests.post(url, data, verify=False).json()
