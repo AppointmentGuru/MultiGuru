@@ -32,6 +32,5 @@ def kong_login(user_id):
         "provision_key": os.environ.get('KONG_PROVISION_KEY'),
         "authenticated_userid": user_id,
     }
-    oauth_base_url = os.environ.get('KONG_OAUTH_BASE_URL')
-    url = '{}/oauth2/token/'.format(oauth_base_url)
+    url = os.environ.get('KONG_OAUTH_ENDPOINT')
     return requests.post(url, data).json()

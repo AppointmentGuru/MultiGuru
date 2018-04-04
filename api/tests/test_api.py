@@ -24,7 +24,7 @@ class BecomeTestCase(TestCase):
 
     @responses.activate
     def test_can_become(self):
-        expected_url = '{}/oauth2/token/'.format(os.environ.get('KONG_OAUTH_BASE_URL'))
+        expected_url = os.environ.get('KONG_OAUTH_ENDPOINT')
         responses.add(
             responses.POST,
             expected_url,
