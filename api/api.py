@@ -13,13 +13,17 @@ from rest_framework import (
     status
 )
 
-from .models import Group, Permission
+from .models import Group, Permission, Hub
 from .filters import IsOwnerFilterBackend
 from .helpers import (can_become, kong_login)
 from multiguru.guru import get_headers
 
 import requests
 
+class HubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hub
+        fields = '__all__'
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,9 +65,14 @@ class GroupViewSet(viewsets.ModelViewSet):
 
         return JsonResponse(response, safe=False)
 
+
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
+
+class HubViewSet(viewsets.ModelViewSet):
+    queryset = Hub.objects.all()
+    serializer_class = HubSerializer
 
 
 class BecomeViewSet(viewsets.ViewSet):
@@ -79,8 +88,6 @@ class BecomeViewSet(viewsets.ViewSet):
         else:
             response = { "errors": [ 'Authentication failed' ] }
             return JsonResponse(response, status=status.HTTP_403_FORBIDDEN)
-
-
 
 class ProxyViewSet(viewsets.ViewSet):
     '''Simple class that proxys requests upstream according to the user's permissions'''
