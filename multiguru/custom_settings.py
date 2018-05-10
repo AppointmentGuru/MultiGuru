@@ -35,11 +35,11 @@ if db_password:
 REST_FRAMEWORK = {
     # 'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
+    #     'rest_framework.permissions.AllowAny',
     # ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'kong_oauth.drf_authbackends.KongDownstreamAuthHeadersAuthentication',
+        # 'kong_oauth.drf_authbackends.KongDownstreamAuthHeadersAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100

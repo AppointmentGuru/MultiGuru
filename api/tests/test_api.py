@@ -68,6 +68,11 @@ class GroupTestCase(TestCase):
         assert len(res.json()) == 1
         assert res.json()[0].get('data') is not None
 
+    def test_anon_cannot_create_group(self):
+        res = self.client.post(self.url)
+        assert res.status_code == 405, \
+            'Expected 405. Got: {}'.format(res.status_code)
+
 class ProxyTestCase(TestCase):
 
     def __add_response(self, path='/api/v2/practitioner/clients/', response_data={}, status=200):
@@ -151,7 +156,7 @@ class ProxyPOSTTestCase(TestCase):
                         'appointment')
 
     @responses.activate
-    def test_is_upstreams_a_post_request(self):
+    def test_it_upstreams_a_post_request(self):
         payload = {
             "practitioner": 1,
             "create_process": False,

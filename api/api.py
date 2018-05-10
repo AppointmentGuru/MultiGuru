@@ -10,7 +10,8 @@ from rest_framework import (
     response,
     decorators,
     filters,
-    status
+    status,
+    permissions
 )
 
 from .models import Group, Permission, Hub
@@ -73,6 +74,7 @@ class PermissionViewSet(viewsets.ModelViewSet):
 class HubViewSet(viewsets.ModelViewSet):
     queryset = Hub.objects.all()
     serializer_class = HubSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class BecomeViewSet(viewsets.ViewSet):
@@ -175,5 +177,6 @@ class ProxyViewSet(viewsets.ViewSet):
 router = routers.DefaultRouter()
 router.register(r'become', BecomeViewSet, base_name='become')
 router.register(r'groups', GroupViewSet)
+router.register(r'hubs', HubViewSet)
 router.register(r'permissions', PermissionViewSet)
 router.register(r'proxy', ProxyViewSet, base_name='proxy')
