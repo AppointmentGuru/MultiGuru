@@ -10,7 +10,8 @@ from .testutils import (add_response,
                         get_proxy_headers,
                         create_fake_user,
                         create_fake_group,
-                        create_fake_group_and_members)
+                        create_fake_group_and_members,
+                        create_fake_hub)
 from ..models import Group
 import os, requests, responses
 
@@ -76,6 +77,7 @@ class GroupTestCase(TestCase):
 class HubTestCase(TestCase):
 
     def setUp(self):
+        self.hub = create_fake_hub({"title": "Some Hub"})
         self.url = reverse('hub-list')
 
     def test_list_hubs(self):
@@ -87,6 +89,22 @@ class HubTestCase(TestCase):
         res = self.client.post(self.url)
         assert res.status_code == 403,\
             'Expected 403. Got: {}'.format(res.status_code)
+
+    def test_get_hub_by_slug(self):
+        url = reverse('hub-detail', args=(self.hub.slug,))
+        res = self.client.get(url)
+        assert res.status_code == 200,\
+            'Expected 200 OK. Got: {}'.format(res.status_code)
+        assert res.json().get('title') == 'Some Hub'
+
+    def test_get_hub_by_id(self):
+        url = reverse('hub-detail', args=(self.hub.id,))
+        res = self.client.get(url)
+        assert res.status_code == 200,\
+            'Expected 200 OK. Got: {}'.format(res.status_code)
+        assert res.json().get('title') == 'Some Hub'
+
+
 
 
 class ProxyTestCase(TestCase):

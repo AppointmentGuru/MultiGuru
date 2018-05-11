@@ -41,6 +41,7 @@ class Hub(models.Model):
     description = models.TextField(null=True, blank=True)
     logo = models.ImageField(null=True, blank=True, upload_to=logo_destination)
     hero_image = models.URLField(null=True, blank=True)
+    theme_color = models.CharField(max_length=255, default='orange')
     practitioners = ArrayField(models.CharField(max_length=100, blank=True), blank=True, null=True)
 
     is_password_protected = models.BooleanField(default=False)

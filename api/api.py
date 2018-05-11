@@ -76,6 +76,16 @@ class HubViewSet(viewsets.ModelViewSet):
     serializer_class = HubSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_object(self):
+        queryset = self.get_queryset()
+        pk = self.kwargs.get('pk')
+        try:
+            int(pk)
+            obj = queryset.get(id=pk)
+        except ValueError:
+            obj = get_object_or_404(queryset, slug=pk)
+        return obj
+
 
 class BecomeViewSet(viewsets.ViewSet):
 
