@@ -35,6 +35,11 @@ def add_response(path='/api/clients/', response_data={}, method='GET', status=20
 def create_fake_user(username):
     return get_user_model().objects.create_user(username=username, password='testtest')
 
+def create_fake_hub(data = {}):
+    default_data = {"title": FAKE.company()}
+    default_data.update(data)
+    return Hub.objects.create(**default_data)
+
 def create_fake_group(name, owners=[], members=[], permissions=[]):
     group = Group.objects.create(
         name=name,

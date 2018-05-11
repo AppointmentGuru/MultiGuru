@@ -73,6 +73,22 @@ class GroupTestCase(TestCase):
         assert res.status_code == 405, \
             'Expected 405. Got: {}'.format(res.status_code)
 
+class HubTestCase(TestCase):
+
+    def setUp(self):
+        self.url = reverse('hub-list')
+
+    def test_list_hubs(self):
+        res = self.client.get(self.url)
+        assert res.status_code == 200,\
+            'Expected 200. Got: {}'.format(res.status_code)
+
+    def test_anon_cannot_create(self):
+        res = self.client.post(self.url)
+        assert res.status_code == 403,\
+            'Expected 403. Got: {}'.format(res.status_code)
+
+
 class ProxyTestCase(TestCase):
 
     def __add_response(self, path='/api/v2/practitioner/clients/', response_data={}, status=200):

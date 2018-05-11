@@ -37,9 +37,14 @@ class Hub(models.Model):
         return self.title
 
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     logo = models.ImageField(null=True, blank=True, upload_to=logo_destination)
+    hero_image = models.URLField(null=True, blank=True)
     practitioners = ArrayField(models.CharField(max_length=100, blank=True), blank=True, null=True)
+
+    is_password_protected = models.BooleanField(default=False)
+    password = models.CharField(max_length=255, null=True, blank=True)
 
 
 class Permission(models.Model):
@@ -50,5 +55,5 @@ class Permission(models.Model):
     code = models.CharField(max_length=100, choices=POSSIBLE_PERMISSIONS)
     name = models.CharField(max_length=255)
 
-
+from .signals import *
 
