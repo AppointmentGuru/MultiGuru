@@ -55,3 +55,16 @@ PROXIED_APIS = {
         'profile': '/api/client/practitioners/{}/',
     }
 }
+
+if os.environ.get('SENTRY_PUBLIC_KEY') is not None:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    dsn = "https://{}@sentry.io/{}".format(
+        os.environ.get("SENTRY_PUBLIC_KEY"),
+        os.environ.get("SENTRY_PROJECT_ID"),
+    )
+    sentry_sdk.init(
+        dsn=dsn,
+        integrations=[DjangoIntegration()]
+    )
